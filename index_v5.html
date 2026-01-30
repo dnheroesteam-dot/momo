@@ -400,6 +400,7 @@ input[type="file"] { display: none; }
             <img src="c9740b1646be8b028b6d90253cda2b79fa9a23d2.png" alt="福灵小兽">
             <div class="gift-info">福灵小兽<br>走 8 步</div>
           </div>
+          
           <div class="gift-item" data-steps="10">
             <img src="61ad06ac8b28732443d8639cc2087f4dc6a2b1ca.png" alt="星愿花园">
             <div class="gift-info">星愿花园<br>走 10 步</div>
@@ -625,7 +626,7 @@ function startMovePlayer() {
     alert('請先選擇一個玩家！');
     return;
   }
-  const steps = Math.max(1, Math.min(10, parseInt(document.getElementById('steps').value) || 1));
+  const steps = Math.max(1, Math.min(30, parseInt(document.getElementById('steps').value) || 1));
   moveStepByStep(selectedPlayerId, steps);
 }
 
@@ -791,3 +792,4 @@ window.addEventListener('resize', updateScale);
 </body>
 
 </html>
+
