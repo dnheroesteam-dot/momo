@@ -372,7 +372,7 @@ input[type="file"] { display: none; }
       <div class="move-controls">
         <div>手動走幾格：</div>
         <div class="move-input-row">
-          <input id="steps" type="number" value="3" min="1" max="10">
+          <input id="steps" type="number" value="3" min="1" max="99">
           <button id="moveBtn" disabled>開始移動（選中玩家）</button>
         </div>
       </div>
@@ -789,4 +789,5 @@ window.addEventListener('load', () => {
 window.addEventListener('resize', updateScale);
 </script>
 </body>
+
 </html>
