@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>來口夢夢_V2</title>
+  <title>來口夢夢_V3</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -45,7 +45,7 @@
     }
     .player {
       position: absolute;
-      width: 3vw;
+      width: 6vw;
       height: 6vw;
       max-width: 50px;
       max-height: 50px;
@@ -138,15 +138,37 @@
       padding: 16px;
       border: 1px solid #444;
     }
-    #event-log {
+    #event-log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    #event-log h4 {
+      margin: 0;
+      color: #ffeb3b;
+      font-size: 1.1rem;
+    }
+    .log-btn {
+      font-size: 0.9rem;
+      padding: 6px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      min-width: 70px;
+      text-align: center;
+    }
+    #clearLogBtn { background: #666; }
+    #clearLogBtn:hover { background: #888; }
+    #copyLogBtn { background: #2196F3; }
+    #copyLogBtn:hover { background: #1e88e5; }
+    #log-content {
       max-height: 300px;
       overflow-y: auto;
       font-size: 0.95rem;
-    }
-    #event-log h4 {
-      margin: 0 0 12px 0;
-      color: #ffeb3b;
-      font-size: 1.1rem;
     }
     .log-entry {
       margin-bottom: 8px;
@@ -166,6 +188,13 @@
         width: 100%;
         max-width: 500px;
       }
+      #event-log-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .log-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -176,7 +205,13 @@
     <div id="board-container"></div>
     <div id="event-log-container">
       <div id="event-log">
-        <h4>事件紀錄</h4>
+        <div id="event-log-header">
+          <h4>事件紀錄</h4>
+          <div style="display:flex; gap:10px;">
+            <button id="clearLogBtn" class="log-btn">清空紀錄</button>
+            <button id="copyLogBtn" class="log-btn">複製全部</button>
+          </div>
+        </div>
         <div id="log-content">尚未觸發任何事件</div>
       </div>
     </div>
@@ -229,9 +264,8 @@
 </div>
 
 <script>
-// path 陣列：最前面新增真正的起點座標 (350,60)
 const path = [
-  {"x": 350, "y": 60},   // 真正的起點（人物初始位置）
+  {"x": 350, "y": 60},
   {"x":411,"y":60},{"x":472,"y":60},{"x":533,"y":60},{"x":595,"y":60},
   {"x":656,"y":60},{"x":717,"y":60},{"x":778,"y":60},{"x":840,"y":60},
   {"x":901,"y":60},{"x":962,"y":60},{"x":964,"y":119},{"x":964,"y":178},
@@ -256,8 +290,7 @@ const players = {
 };
 
 const events = [
-  "", // pos=0 起點，無事件
-  "深蹲5下", "真心话1个", "前进5格", "禁言主播上麦5分钟",
+  "", "深蹲5下", "真心话1个", "前进5格", "禁言主播上麦5分钟",
   "把id改成主播の小狗一天", "无事发生", "猪哼3次", "亲亲5下",
   "送一个蓝色的礼物", "后退3格", "无事发生", "换指定头像",
   "含水说123", "老公天下第一", "上麦喊姐姐", "前进两格",
@@ -282,10 +315,15 @@ function addToLog(message) {
     logContent.innerHTML = eventLog.map((item, i) => 
       `<div class="log-entry">${i+1}. ${item}</div>`
     ).join('');
+    
     if (eventLog.length === 0) {
       logContent.innerHTML = "尚未觸發任何事件";
     }
+    
     logContent.scrollTop = logContent.scrollHeight;
+    setTimeout(() => {
+      logContent.scrollTop = logContent.scrollHeight;
+    }, 50);
   }
 }
 
@@ -419,10 +457,33 @@ function resetGame() {
   document.getElementById('moveBtn').disabled = false;
   isMoving = false;
   players[1].el?.classList.remove('moving');
-  // 如需重置紀錄，可取消下面註解
-  // eventLog = [];
-  // document.getElementById('log-content').innerHTML = "尚未觸發任何事件";
 }
+
+// 清空紀錄
+document.getElementById('clearLogBtn')?.addEventListener('click', () => {
+  if (confirm("確定要清空所有事件紀錄嗎？")) {
+    eventLog = [];
+    document.getElementById('log-content').innerHTML = "尚未觸發任何事件";
+  }
+});
+
+// 複製全部
+document.getElementById('copyLogBtn')?.addEventListener('click', () => {
+  if (eventLog.length === 0) {
+    alert("目前沒有任何事件可複製");
+    return;
+  }
+
+  const logText = eventLog.map((item, i) => `${i+1}. ${item}`).join('\n');
+  navigator.clipboard.writeText(logText)
+    .then(() => {
+      alert("已複製全部事件紀錄到剪貼簿！");
+    })
+    .catch(err => {
+      console.error('複製失敗:', err);
+      alert("複製失敗，請手動選取複製");
+    });
+});
 
 // 綁定禮物點擊
 document.querySelectorAll('.gift-row').forEach(row => {
