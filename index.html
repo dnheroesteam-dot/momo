@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圖片棋盤 - 響應式飛行棋</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#111;
+      min-height:100vh;
+      color:white;
+      font-family:sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:20px;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+    #board-container {
+      position:relative;
+      width:90vw;
+      max-width:950px;
+      aspect-ratio:1000 / 600;
+      background-image:url("board.jpg"); /* 請確認圖片存在 */
+      background-size:contain;
+      background-repeat:no-repeat;
+      background-position:center;
+      border:1px solid #444;
+      overflow:hidden;
+      flex: 1 1 700px;
+    }
+    .player {
+      position:absolute;
+      width:6vw;
+      height:6vw;
+      max-width:60px;
+      max-height:60px;
+      border-radius:50%;
+      background-size:cover;
+      background-position:center;
+      transition: left 0.4s ease-in-out, top 0.4s ease-in-out, opacity 0.2s ease;
+      pointer-events:auto;
+      transform:translate(-50%, -50%);
+      opacity:1;
+      border:2px solid #fff;
+      box-shadow:0 0 8px rgba(0,0,0,0.6);
+    }
+    .player.moving {
+      box-shadow:0 0 20px #ffd700, 0 0 30px #ffeb3b;
+      transform: translate(-50%, -50%) scale(1.15);
+      transition: all 0.4s ease-in-out;
+    }
+    .player:hover { opacity:0.2; cursor:default; }
+
+    #ui {
+      width:260px;
+      min-width:240px;
+      text-align:center;
+      flex: 0 0 auto;
+    }
+    input[type="number"], button {
+      padding:8px 12px;
+      font-size:1rem;
+      margin:6px 0;
+      width:100%;
+      max-width:220px;
+      text-align:center;
+    }
+    button {
+      background:#4CAF50;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+    button:hover { background:#45a049; }
+    button:disabled {
+      background:#555;
+      cursor:not-allowed;
+      opacity:0.6;
+    }
+    #resetBtn { background:#f44336; }
+    #resetBtn:hover:not(:disabled) { background:#da190b; }
+    #changeImgBtn { background:#2196F3; }
+    #changeImgBtn:hover:not(:disabled) { background:#0b7dda; }
+    #fileInput { display:none; }
+
+    #gifts-section {
+      margin-top:20px;
+      padding:12px;
+      background:rgba(255,255,255,0.08);
+      border-radius:10px;
+      width:100%;
+    }
+    .gift-row {
+      display:flex;
+      align-items:center;
+      margin:8px 0;
+      padding:6px;
+      background:rgba(0,0,0,0.3);
+      border-radius:6px;
+    }
+    .gift-row img {
+      width:45px;
+      height:45px;
+      object-fit:cover;
+      border-radius:6px;
+      margin-right:10px;
+    }
+    .gift-info {
+      flex:1;
+      text-align:left;
+      font-size:0.9rem;
+      line-height:1.3;
+    }
+    .gift-info input {
+      width:45px;
+      margin:0 6px;
+      text-align:center;
+      padding:4px;
+    }
+    .gift-info .item-total {
+      font-weight:bold;
+      color:#ffeb3b;
+    }
+    #total-steps {
+      font-size:1.3rem;
+      font-weight:bold;
+      color:#ffd700;
+      margin-top:15px;
+      text-align:center;
+      display:block;
+    }
+  </style>
+</head>
+<body>
+
+<div id="board-container"></div>
+
+<div id="ui">
+  <div>走幾格：</div>
+  <input id="steps" type="number" value="3" min="1" max="10">
+  <button id="moveBtn" onclick="startMovePlayer(1)">開始移動 玩家1</button>
+  <button id="changeImgBtn" onclick="document.getElementById('fileInput').click()">
+    更換角色圖片
+  </button>
+  <input type="file" id="fileInput" accept="image/*">
+  <button id="resetBtn" onclick="resetGame()">重新開始</button>
+
+  <div id="gifts-section">
+    <h3 style="margin-bottom:10px; font-size:1.1rem;">禮物步數</h3>
+
+    <div class="gift-row">
+      <img src="3ffb357cca0d74346148b96d80d01ec492a82b61.png" alt="幸运泡泡">
+      <div class="gift-info">
+        幸运泡泡 × <input type="number" class="gift-count" data-steps="1" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div class="gift-row">
+      <img src="a2e8254f5c533a9b3f00201a8878c37fffd40651.png" alt="星光铃铛">
+      <div class="gift-info">
+        星光铃铛 × <input type="number" class="gift-count" data-steps="3" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div class="gift-row">
+      <img src="792e1ae4e92cc33fa323970c55464ff6240959f0.png" alt="好运柚叶">
+      <div class="gift-info">
+        好运柚叶 × <input type="number" class="gift-count" data-steps="2" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div class="gift-row">
+      <img src="ee4281781ecf14bef08e3114b1a7c4e8a548d7f4.png" alt="梦雾纸签">
+      <div class="gift-info">
+        梦雾纸签 × <input type="number" class="gift-count" data-steps="5" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div class="gift-row">
+      <img src="c9740b1646be8b028b6d90253cda2b79fa9a23d2.png" alt="福灵小兽">
+      <div class="gift-info">
+        福灵小兽 × <input type="number" class="gift-count" data-steps="8" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div class="gift-row">
+      <img src="61ad06ac8b28732443d8639cc2087f4dc6a2b1ca.png" alt="星愿花园">
+      <div class="gift-info">
+        星愿花园 × <input type="number" class="gift-count" data-steps="10" value="0" min="0">  
+        走 <span class="item-total">0</span> 步
+      </div>
+    </div>
+
+    <div id="total-steps">總共走 0 步</div>
+  </div>
+</div>
+
+<script>
+const path = [
+  {"x":411,"y":60},{"x":472,"y":60},{"x":533,"y":60},{"x":595,"y":60},
+  {"x":656,"y":60},{"x":717,"y":60},{"x":778,"y":60},{"x":840,"y":60},
+  {"x":901,"y":60},{"x":962,"y":60},{"x":964,"y":119},{"x":964,"y":178},
+  {"x":902,"y":180},{"x":840,"y":180},{"x":778,"y":180},{"x":716,"y":180},
+  {"x":654,"y":180},{"x":592,"y":180},{"x":530,"y":180},{"x":468,"y":180},
+  {"x":406,"y":180},{"x":409,"y":240},{"x":409,"y":301},{"x":409,"y":361},
+  {"x":409,"y":421},{"x":409,"y":482},{"x":409,"y":542},{"x":469,"y":544},
+  {"x":531,"y":544},{"x":593,"y":544},{"x":654,"y":544},{"x":716,"y":544},
+  {"x":778,"y":544},{"x":840,"y":544},{"x":901,"y":544},{"x":963,"y":544},
+  {"x":964,"y":484},{"x":964,"y":425},{"x":965,"y":365},{"x":965,"y":305},
+  {"x":904,"y":300},{"x":842,"y":300},{"x":779,"y":300},{"x":717,"y":300},
+  {"x":655,"y":300},{"x":592,"y":300},{"x":530,"y":300},{"x":530,"y":364},
+  {"x":531,"y":423},{"x":591,"y":423}
+];
+
+const REFERENCE_WIDTH = 1000;
+let scale = 1;
+let isMoving = false; // 防止連續點擊造成亂跳
+
+const players = {
+  1: { el: null, pos: 0, imageUrl: "player.png" }
+};
+
+function createPlayer(playerId) {
+  const player = document.createElement('div');
+  player.className = 'player';
+  player.id = `player-${playerId}`;
+  player.style.backgroundImage = `url(${players[playerId].imageUrl})`;
+  document.getElementById('board-container').appendChild(player);
+  players[playerId].el = player;
+}
+
+function getScaledPos(pos) {
+  if (pos < 0 || pos >= path.length) return {left: 50, top: 550};
+  return {
+    left: path[pos].x * scale,
+    top:  path[pos].y * scale
+  };
+}
+
+function setPlayerPosition(playerId, cellIndex) {
+  const player = players[playerId];
+  if (!player?.el) return;
+  
+  player.pos = cellIndex;
+  const {left, top} = getScaledPos(cellIndex);
+  
+  player.el.style.left = left + 'px';
+  player.el.style.top  = top + 'px';
+}
+
+function updateScale() {
+  const container = document.getElementById('board-container');
+  const rect = container.getBoundingClientRect();
+  scale = rect.width / REFERENCE_WIDTH;
+  
+  Object.keys(players).forEach(id => {
+    setPlayerPosition(Number(id), players[id].pos);
+  });
+}
+
+async function moveStepByStep(playerId, steps) {
+  if (isMoving) return;
+  isMoving = true;
+  
+  const moveBtn = document.getElementById('moveBtn');
+  moveBtn.disabled = true;
+  
+  let current = players[playerId].pos;
+  const target = Math.min(current + steps, path.length - 1);
+  
+  const playerEl = players[playerId].el;
+  playerEl.classList.add('moving');
+  
+  while (current < target) {
+    current++;
+    setPlayerPosition(playerId, current);
+    await new Promise(resolve => setTimeout(resolve, 450)); // 每格停留 0.45 秒，可調整速度
+  }
+  
+  playerEl.classList.remove('moving');
+  isMoving = false;
+  moveBtn.disabled = false;
+}
+
+function startMovePlayer(playerId) {
+  if (isMoving) return;
+  
+  const stepsInput = document.getElementById('steps');
+  let steps = parseInt(stepsInput.value) || 1;
+  steps = Math.max(1, Math.min(10, steps));
+  
+  moveStepByStep(playerId, steps);
+}
+
+function resetGame() {
+  setPlayerPosition(1, 0);
+  document.getElementById('steps').value = 3;
+  document.getElementById('moveBtn').disabled = false;
+  isMoving = false;
+  players[1].el?.classList.remove('moving');
+}
+
+function updateTotals() {
+  let grandTotal = 0;
+  document.querySelectorAll('.gift-row').forEach(row => {
+    const input = row.querySelector('.gift-count');
+    const itemTotalEl = row.querySelector('.item-total');
+    const count = parseInt(input.value) || 0;
+    const stepsPer = parseInt(input.dataset.steps) || 0;
+    const itemTotal = count * stepsPer;
+    itemTotalEl.textContent = itemTotal;
+    grandTotal += itemTotal;
+  });
+  document.getElementById('total-steps').textContent = `總共走 ${grandTotal} 步`;
+}
+
+// 事件綁定
+document.querySelectorAll('.gift-count').forEach(input => {
+  input.addEventListener('input', updateTotals);
+  input.addEventListener('change', updateTotals);
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      players[1].imageUrl = ev.target.result;
+      if (players[1].el) {
+        players[1].el.style.backgroundImage = `url(${ev.target.result})`;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+window.addEventListener('load', () => {
+  createPlayer(1);
+  setPlayerPosition(1, 0);
+  updateScale();
+  updateTotals();
+});
+
+window.addEventListener('resize', updateScale);
+</script>
+
+</body>
+</html>
