@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>圖片棋盤 - 響應式飛行棋</title>
+  <title>來口夢夢_V2</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -11,201 +11,227 @@
       min-height:100vh;
       color:white;
       font-family:sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
       padding:20px;
-      gap:20px;
-      flex-wrap:wrap;
+    }
+    .main-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .left-column {
+      flex: 1;
+      max-width: 950px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .right-column {
+      width: 280px;
+      min-width: 260px;
+      text-align: center;
     }
     #board-container {
-      position:relative;
-      width:90vw;
-      max-width:950px;
-      aspect-ratio:1000 / 600;
-      background-image:url("board.jpg"); /* 請確認圖片存在 */
-      background-size:contain;
-      background-repeat:no-repeat;
-      background-position:center;
-      border:1px solid #444;
-      overflow:hidden;
-      flex: 1 1 700px;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1000 / 600;
+      background-image: url("board.jpg");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border: 1px solid #444;
+      overflow: hidden;
     }
     .player {
-      position:absolute;
-      width:6vw;
-      height:6vw;
-      max-width:60px;
-      max-height:60px;
-      border-radius:50%;
-      background-size:cover;
-      background-position:center;
+      position: absolute;
+      width: 3vw;
+      height: 6vw;
+      max-width: 50px;
+      max-height: 50px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
       transition: left 0.4s ease-in-out, top 0.4s ease-in-out, opacity 0.2s ease;
-      pointer-events:auto;
-      transform:translate(-50%, -50%);
-      opacity:1;
-      border:2px solid #fff;
-      box-shadow:0 0 8px rgba(0,0,0,0.6);
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      border: 2px solid #fff;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
     .player.moving {
-      box-shadow:0 0 20px #ffd700, 0 0 30px #ffeb3b;
+      box-shadow: 0 0 20px #ffd700, 0 0 30px #ffeb3b;
       transform: translate(-50%, -50%) scale(1.15);
       transition: all 0.4s ease-in-out;
     }
-    .player:hover { opacity:0.2; cursor:default; }
+    .player:hover { opacity: 0.2; cursor: default; }
 
-    #ui {
-      width:260px;
-      min-width:240px;
-      text-align:center;
-      flex: 0 0 auto;
-    }
     input[type="number"], button {
-      padding:8px 12px;
-      font-size:1rem;
-      margin:6px 0;
-      width:100%;
-      max-width:220px;
-      text-align:center;
+      padding: 8px 12px;
+      font-size: 1rem;
+      margin: 6px 0;
+      width: 100%;
+      max-width: 220px;
+      text-align: center;
     }
     button {
-      background:#4CAF50;
-      color:white;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    button:hover { background:#45a049; }
+    button:hover { background: #45a049; }
     button:disabled {
-      background:#555;
-      cursor:not-allowed;
-      opacity:0.6;
+      background: #555;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
-    #resetBtn { background:#f44336; }
-    #resetBtn:hover:not(:disabled) { background:#da190b; }
-    #changeImgBtn { background:#2196F3; }
-    #changeImgBtn:hover:not(:disabled) { background:#0b7dda; }
-    #fileInput { display:none; }
+    #resetBtn { background: #f44336; }
+    #resetBtn:hover:not(:disabled) { background: #da190b; }
+    #changeImgBtn { background: #2196F3; }
+    #changeImgBtn:hover:not(:disabled) { background: #0b7dda; }
+    #fileInput { display: none; }
 
     #gifts-section {
-      margin-top:20px;
-      padding:12px;
-      background:rgba(255,255,255,0.08);
-      border-radius:10px;
-      width:100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      width: 100%;
     }
     .gift-row {
-      display:flex;
-      align-items:center;
-      margin:8px 0;
-      padding:6px;
-      background:rgba(0,0,0,0.3);
-      border-radius:6px;
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px 6px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .gift-row:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+    }
+    .gift-row:active {
+      transform: scale(0.97);
     }
     .gift-row img {
-      width:45px;
-      height:45px;
-      object-fit:cover;
-      border-radius:6px;
-      margin-right:10px;
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-right: 12px;
+      border-radius: 8px;
     }
     .gift-info {
-      flex:1;
-      text-align:left;
-      font-size:0.9rem;
-      line-height:1.3;
+      flex: 1;
+      text-align: left;
+      font-size: 1rem;
     }
-    .gift-info input {
-      width:45px;
-      margin:0 6px;
-      text-align:center;
-      padding:4px;
+
+    #event-log-container {
+      width: 100%;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid #444;
     }
-    .gift-info .item-total {
-      font-weight:bold;
-      color:#ffeb3b;
+    #event-log {
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.95rem;
     }
-    #total-steps {
-      font-size:1.3rem;
-      font-weight:bold;
-      color:#ffd700;
-      margin-top:15px;
-      text-align:center;
-      display:block;
+    #event-log h4 {
+      margin: 0 0 12px 0;
+      color: #ffeb3b;
+      font-size: 1.1rem;
+    }
+    .log-entry {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #555;
+      word-break: break-all;
+    }
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 900px) {
+      .main-container {
+        flex-direction: column;
+      }
+      .right-column {
+        width: 100%;
+        max-width: 500px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div id="board-container"></div>
-
-<div id="ui">
-  <div>走幾格：</div>
-  <input id="steps" type="number" value="3" min="1" max="10">
-  <button id="moveBtn" onclick="startMovePlayer(1)">開始移動 玩家1</button>
-  <button id="changeImgBtn" onclick="document.getElementById('fileInput').click()">
-    更換角色圖片
-  </button>
-  <input type="file" id="fileInput" accept="image/*">
-  <button id="resetBtn" onclick="resetGame()">重新開始</button>
-
-  <div id="gifts-section">
-    <h3 style="margin-bottom:10px; font-size:1.1rem;">禮物步數</h3>
-
-    <div class="gift-row">
-      <img src="3ffb357cca0d74346148b96d80d01ec492a82b61.png" alt="幸运泡泡">
-      <div class="gift-info">
-        幸运泡泡 × <input type="number" class="gift-count" data-steps="1" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
+<div class="main-container">
+  <div class="left-column">
+    <div id="board-container"></div>
+    <div id="event-log-container">
+      <div id="event-log">
+        <h4>事件紀錄</h4>
+        <div id="log-content">尚未觸發任何事件</div>
       </div>
     </div>
+  </div>
 
-    <div class="gift-row">
-      <img src="a2e8254f5c533a9b3f00201a8878c37fffd40651.png" alt="星光铃铛">
-      <div class="gift-info">
-        星光铃铛 × <input type="number" class="gift-count" data-steps="3" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
+  <div class="right-column" id="ui">
+    <div>手動走幾格：</div>
+    <input id="steps" type="number" value="3" min="1" max="10">
+    <button id="moveBtn" onclick="startMovePlayer(1)">開始移動 玩家1</button>
+    <button id="changeImgBtn" onclick="document.getElementById('fileInput').click()">
+      更換角色圖片
+    </button>
+    <input type="file" id="fileInput" accept="image/*">
+    <button id="resetBtn" onclick="resetGame()">重新開始</button>
+
+    <div id="gifts-section">
+      <h3 style="margin-bottom:12px; font-size:1.1rem;">點擊禮物直接使用</h3>
+
+      <div class="gift-row" data-steps="1">
+        <img src="3ffb357cca0d74346148b96d80d01ec492a82b61.png" alt="幸运泡泡">
+        <div class="gift-info">幸运泡泡　→ 走 1 步</div>
+      </div>
+
+      <div class="gift-row" data-steps="3">
+        <img src="a2e8254f5c533a9b3f00201a8878c37fffd40651.png" alt="星光铃铛">
+        <div class="gift-info">星光铃铛　→ 走 3 步</div>
+      </div>
+
+      <div class="gift-row" data-steps="2">
+        <img src="792e1ae4e92cc33fa323970c55464ff6240959f0.png" alt="好运柚叶">
+        <div class="gift-info">好运柚叶　→ 走 2 步</div>
+      </div>
+
+      <div class="gift-row" data-steps="5">
+        <img src="ee4281781ecf14bef08e3114b1a7c4e8a548d7f4.png" alt="梦雾纸签">
+        <div class="gift-info">梦雾纸签　→ 走 5 步</div>
+      </div>
+
+      <div class="gift-row" data-steps="8">
+        <img src="c9740b1646be8b028b6d90253cda2b79fa9a23d2.png" alt="福灵小兽">
+        <div class="gift-info">福灵小兽　→ 走 8 步</div>
+      </div>
+
+      <div class="gift-row" data-steps="10">
+        <img src="61ad06ac8b28732443d8639cc2087f4dc6a2b1ca.png" alt="星愿花园">
+        <div class="gift-info">星愿花园　→ 走 10 步</div>
       </div>
     </div>
-
-    <div class="gift-row">
-      <img src="792e1ae4e92cc33fa323970c55464ff6240959f0.png" alt="好运柚叶">
-      <div class="gift-info">
-        好运柚叶 × <input type="number" class="gift-count" data-steps="2" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
-      </div>
-    </div>
-
-    <div class="gift-row">
-      <img src="ee4281781ecf14bef08e3114b1a7c4e8a548d7f4.png" alt="梦雾纸签">
-      <div class="gift-info">
-        梦雾纸签 × <input type="number" class="gift-count" data-steps="5" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
-      </div>
-    </div>
-
-    <div class="gift-row">
-      <img src="c9740b1646be8b028b6d90253cda2b79fa9a23d2.png" alt="福灵小兽">
-      <div class="gift-info">
-        福灵小兽 × <input type="number" class="gift-count" data-steps="8" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
-      </div>
-    </div>
-
-    <div class="gift-row">
-      <img src="61ad06ac8b28732443d8639cc2087f4dc6a2b1ca.png" alt="星愿花园">
-      <div class="gift-info">
-        星愿花园 × <input type="number" class="gift-count" data-steps="10" value="0" min="0">  
-        走 <span class="item-total">0</span> 步
-      </div>
-    </div>
-
-    <div id="total-steps">總共走 0 步</div>
   </div>
 </div>
 
 <script>
+// path 陣列：最前面新增真正的起點座標 (350,60)
 const path = [
+  {"x": 350, "y": 60},   // 真正的起點（人物初始位置）
   {"x":411,"y":60},{"x":472,"y":60},{"x":533,"y":60},{"x":595,"y":60},
   {"x":656,"y":60},{"x":717,"y":60},{"x":778,"y":60},{"x":840,"y":60},
   {"x":901,"y":60},{"x":962,"y":60},{"x":964,"y":119},{"x":964,"y":178},
@@ -223,11 +249,45 @@ const path = [
 
 const REFERENCE_WIDTH = 1000;
 let scale = 1;
-let isMoving = false; // 防止連續點擊造成亂跳
+let isMoving = false;
 
 const players = {
   1: { el: null, pos: 0, imageUrl: "player.png" }
 };
+
+const events = [
+  "", // pos=0 起點，無事件
+  "深蹲5下", "真心话1个", "前进5格", "禁言主播上麦5分钟",
+  "把id改成主播の小狗一天", "无事发生", "猪哼3次", "亲亲5下",
+  "送一个蓝色的礼物", "后退3格", "无事发生", "换指定头像",
+  "含水说123", "老公天下第一", "上麦喊姐姐", "前进两格",
+  "送一个黄色的礼物", "无事发生", "叫醒卡1次",
+  "发动态，问口水为什么对痔疮没用", "送一个喜欢你", "回到起点",
+  "叫老公", "点亮1个星球", "打pp10下", "后退3格",
+  "亲亲3下", "发个红包", "无事发生", "表白30秒",
+  "闽南话5分钟", "后退4格", "帮主播打赢一场pk",
+  "连睡卡1次", "pk去对面说你敢动我得女人不要命了", "冠名一天",
+  "给梦梦点奶茶", "无事发生", "前进2格", "开个心动盲盒",
+  "梦梦给你点奶茶", "后退6格", "边亲边骂三连击", "直达终点",
+  "狗狗叫5声", "无事发生", "指定称呼*1天", "送一个情书",
+  "展示手机相册最近三张照片", "終點"
+];
+
+let eventLog = [];
+
+function addToLog(message) {
+  eventLog.push(message);
+  const logContent = document.getElementById('log-content');
+  if (logContent) {
+    logContent.innerHTML = eventLog.map((item, i) => 
+      `<div class="log-entry">${i+1}. ${item}</div>`
+    ).join('');
+    if (eventLog.length === 0) {
+      logContent.innerHTML = "尚未觸發任何事件";
+    }
+    logContent.scrollTop = logContent.scrollHeight;
+  }
+}
 
 function createPlayer(playerId) {
   const player = document.createElement('div');
@@ -239,20 +299,19 @@ function createPlayer(playerId) {
 }
 
 function getScaledPos(pos) {
-  if (pos < 0 || pos >= path.length) return {left: 50, top: 550};
+  if (pos < 0) pos = 0;
+  if (pos >= path.length) pos = path.length - 1;
   return {
     left: path[pos].x * scale,
-    top:  path[pos].y * scale
+    top: path[pos].y * scale
   };
 }
 
 function setPlayerPosition(playerId, cellIndex) {
   const player = players[playerId];
   if (!player?.el) return;
-  
   player.pos = cellIndex;
   const {left, top} = getScaledPos(cellIndex);
-  
   player.el.style.left = left + 'px';
   player.el.style.top  = top + 'px';
 }
@@ -261,44 +320,97 @@ function updateScale() {
   const container = document.getElementById('board-container');
   const rect = container.getBoundingClientRect();
   scale = rect.width / REFERENCE_WIDTH;
-  
-  Object.keys(players).forEach(id => {
-    setPlayerPosition(Number(id), players[id].pos);
-  });
+  Object.keys(players).forEach(id => setPlayerPosition(Number(id), players[id].pos));
 }
 
 async function moveStepByStep(playerId, steps) {
   if (isMoving) return;
   isMoving = true;
-  
-  const moveBtn = document.getElementById('moveBtn');
-  moveBtn.disabled = true;
-  
+  document.getElementById('moveBtn').disabled = true;
+
   let current = players[playerId].pos;
-  const target = Math.min(current + steps, path.length - 1);
-  
-  const playerEl = players[playerId].el;
-  playerEl.classList.add('moving');
-  
+  let target = Math.min(current + steps, path.length - 1);
+
+  players[playerId].el.classList.add('moving');
+
   while (current < target) {
     current++;
     setPlayerPosition(playerId, current);
-    await new Promise(resolve => setTimeout(resolve, 450)); // 每格停留 0.45 秒，可調整速度
+    await new Promise(r => setTimeout(r, 450));
   }
-  
-  playerEl.classList.remove('moving');
+
+  players[playerId].el.classList.remove('moving');
   isMoving = false;
-  moveBtn.disabled = false;
+  document.getElementById('moveBtn').disabled = false;
+
+  checkEventAfterMove(playerId, 0);
 }
 
 function startMovePlayer(playerId) {
   if (isMoving) return;
-  
-  const stepsInput = document.getElementById('steps');
-  let steps = parseInt(stepsInput.value) || 1;
-  steps = Math.max(1, Math.min(10, steps));
-  
+  const steps = Math.max(1, Math.min(10, parseInt(document.getElementById('steps').value) || 1));
   moveStepByStep(playerId, steps);
+}
+
+async function useGift(steps) {
+  if (steps <= 0 || isMoving) {
+    if (isMoving) alert("正在移動中，請稍等～");
+    return;
+  }
+  await moveStepByStep(1, steps);
+}
+
+function checkEventAfterMove(playerId, depth = 0) {
+  if (depth > 10) {
+    addToLog("事件連鎖過深，已停止");
+    return;
+  }
+
+  const pos = players[playerId].pos;
+  if (pos < 1 || pos >= events.length) return;
+
+  const eventText = events[pos];
+  if (!eventText || eventText === "") return;
+
+  let finalText = eventText;
+  let newPos = pos;
+  let moved = false;
+
+  if (eventText.includes("前进")) {
+    const num = parseInt(eventText.match(/\d+/)?.[0] || 0);
+    if (num > 0) {
+      newPos = Math.min(pos + num, path.length - 1);
+      finalText += ` （自動前進 ${num} 格）`;
+      moved = true;
+    }
+  } else if (eventText.includes("后退")) {
+    const num = parseInt(eventText.match(/\d+/)?.[0] || 0);
+    if (num > 0) {
+      newPos = Math.max(0, pos - num);
+      finalText += ` （自動後退 ${num} 格）`;
+      moved = true;
+    }
+  } else if (eventText === "回到起点") {
+    newPos = 0;
+    finalText += " （已回到起點）";
+    moved = true;
+  } else if (eventText === "直达终点") {
+    newPos = path.length - 1;
+    finalText += " （已直達終點！）";
+    moved = true;
+  }
+
+  const logMsg = `格子 ${pos}：${finalText}`;
+  addToLog(logMsg);
+
+  alert(`踩到事件格！\n${finalText}`);
+
+  if (moved) {
+    setPlayerPosition(playerId, newPos);
+    setTimeout(() => {
+      checkEventAfterMove(playerId, depth + 1);
+    }, 800);
+  }
 }
 
 function resetGame() {
@@ -307,26 +419,17 @@ function resetGame() {
   document.getElementById('moveBtn').disabled = false;
   isMoving = false;
   players[1].el?.classList.remove('moving');
+  // 如需重置紀錄，可取消下面註解
+  // eventLog = [];
+  // document.getElementById('log-content').innerHTML = "尚未觸發任何事件";
 }
 
-function updateTotals() {
-  let grandTotal = 0;
-  document.querySelectorAll('.gift-row').forEach(row => {
-    const input = row.querySelector('.gift-count');
-    const itemTotalEl = row.querySelector('.item-total');
-    const count = parseInt(input.value) || 0;
-    const stepsPer = parseInt(input.dataset.steps) || 0;
-    const itemTotal = count * stepsPer;
-    itemTotalEl.textContent = itemTotal;
-    grandTotal += itemTotal;
+// 綁定禮物點擊
+document.querySelectorAll('.gift-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const steps = parseInt(row.dataset.steps) || 0;
+    useGift(steps);
   });
-  document.getElementById('total-steps').textContent = `總共走 ${grandTotal} 步`;
-}
-
-// 事件綁定
-document.querySelectorAll('.gift-count').forEach(input => {
-  input.addEventListener('input', updateTotals);
-  input.addEventListener('change', updateTotals);
 });
 
 document.getElementById('fileInput').addEventListener('change', function(e) {
@@ -335,9 +438,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
     const reader = new FileReader();
     reader.onload = function(ev) {
       players[1].imageUrl = ev.target.result;
-      if (players[1].el) {
-        players[1].el.style.backgroundImage = `url(${ev.target.result})`;
-      }
+      if (players[1].el) players[1].el.style.backgroundImage = `url(${ev.target.result})`;
     };
     reader.readAsDataURL(file);
   }
@@ -347,7 +448,6 @@ window.addEventListener('load', () => {
   createPlayer(1);
   setPlayerPosition(1, 0);
   updateScale();
-  updateTotals();
 });
 
 window.addEventListener('resize', updateScale);
