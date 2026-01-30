@@ -448,17 +448,24 @@ const events = [
   "", "深蹲5下", "真心话1个", "前进5格", "禁言主播上麦5分钟", "把id改成主播の小狗一天", "无事发生", "猪哼3次", "亲亲5下", "送一个蓝色的礼物", "后退3格", "无事发生", "换指定头像", "含水说123", "老公天下第一", "上麦喊姐姐", "前进2格", "送一个黄色的礼物", "无事发生", "叫醒卡1次", "发动态，问口水为什么对痔疮没用", "送一个喜欢你", "回到起点", "叫老公", "点亮1个星球", "打pp10下", "后退3格", "亲亲3下", "发个红包", "无事发生", "表白30秒", "闽南话5分钟", "后退4格", "帮主播打赢一场pk", "连睡卡1次", "pk去对面说你敢动我得女人不要命了", "冠名一天", "给梦梦点奶茶", "无事发生", "前进2格", "开个心动盲盒", "梦梦给你点奶茶", "后退6格", "边亲边骂三连击", "直达终点", "狗狗叫5声", "无事发生", "指定称呼*1天", "送一个情书", "展示手机相册最近三张照片", "終點"
 ];
 
-let eventLog = [];
+let eventLog = [];  // 存 { plain: "純文字", html: "帶樣式HTML" }
 
 function addToLog(message) {
-  eventLog.push(message);
+  // 移除所有 HTML 標籤，得到純文字
+  const plainText = message.replace(/<[^>]+>/g, '').trim();
+
+  // 存入物件
+  eventLog.push({
+    plain: plainText,
+    html: message
+  });
+
+  // 渲染顯示（帶編號 + HTML）
   const logContent = document.getElementById('log-content');
-  logContent.innerHTML = eventLog.map((item, i) => 
-    `<div class="log-entry">${i+1}. ${item}</div>`
+  logContent.innerHTML = eventLog.map((entry, index) => 
+    `<div class="log-entry">${index + 1}. ${entry.html}</div>`
   ).join('');
-  if (eventLog.length === 0) {
-    logContent.innerHTML = "尚未觸發任何事件";
-  }
+
   logContent.scrollTop = logContent.scrollHeight;
 }
 
@@ -776,10 +783,19 @@ document.getElementById('copyLogBtn').addEventListener('click', () => {
     alert("目前沒有任何事件可複製");
     return;
   }
-  const logText = eventLog.map((item, i) => `${i+1}. ${item}`).join('\n');
+
+  // 使用純文字版本來複製
+  const logText = eventLog.map((entry, index) => 
+    `${index + 1}. ${entry.plain}`
+  ).join('\n');
+
   navigator.clipboard.writeText(logText)
-    .then(() => alert("已複製全部事件紀錄到剪貼簿！"))
-    .catch(() => alert("複製失敗，請手動選取複製"));
+    .then(() => {
+      alert("已複製全部事件紀錄到剪貼簿！（純文字版本）");
+    })
+    .catch(() => {
+      alert("複製失敗，請手動選取文字後 Ctrl+C");
+    });
 });
 
 window.addEventListener('load', () => {
@@ -792,4 +808,3 @@ window.addEventListener('resize', updateScale);
 </body>
 
 </html>
-
